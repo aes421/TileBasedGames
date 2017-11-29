@@ -10,6 +10,22 @@
         var canvas, canvasContext;
         var ballX;
         var ballY;
+        var ballSpeedX = 10;
+        var ballSpeedY = 4;
+        const PADDLE_HEIGHT = 100;
+        var paddle1Y = 250;
+        var paddle2Y = 250;
+
+        function calculateMousePos(event){
+            var rect = canvas.getBoundingClientRect();
+            var root = document.documentElement;
+            var mouseX = event.clientX - rect.left - root.scrollLeft;
+            var mouseY = event.clientY - rect.top - root.scrollTop;
+            return {
+                    x: mouseX,
+                    y:mouseY
+                };
+        }
 
         window.onload = function(){
             canvas = document.getElementById('gameCanvas');
@@ -25,23 +41,47 @@
                     draw();
             }, 1000/framesPerSecond);
 
+            canvas.addEventListener('mousemove',
+                function(event){
+                    var mousePosition = calculateMousePos(event);
+                    paddle1Y = mousePosition.y - PADDLE_HEIGHT/2;
+                })
         }
 
         function move(){
+            if (ballX > canvas.width || ballX < 0){
+                ballSpeedX = -ballSpeedX;
+            }
 
-                ballX = ballX + 10;
+                ballX = ballX + ballSpeedX;
+
+            if (ballY > canvas.height || ballY < 0){
+                    ballSpeedY = -ballSpeedY;
+            }
+
+            ballY = ballY + ballSpeedY;
         }
 
         function draw(){
-            canvasContext.fillStyle = 'black';
-            canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+            //background
+            drawRects(0, 0, canvas.width, canvas.height, 'black');
+            //paddles
+            drawRects(15, paddle1Y, 10, PADDLE_HEIGHT, 'white');
+            drawRects(canvas.width-(15+7.5), 300, 10, 100, 'white');
+            //ball
+            drawBall(ballX, ballY, 10, 'white');
 
-            canvasContext.fillStyle = 'white';
-            canvasContext.fillRect(15, 300, 10, 100);
+        }
 
-            canvasContext.fillStyle = 'white';
+        function drawRects(x, y, width, height, color){
+            canvasContext.fillStyle = color;
+            canvasContext.fillRect(x, y, width, height);
+        }
+
+        function drawBall(x, y, radius, color){
+            canvasContext.fillStyle = color;
             canvasContext.beginPath();
-            canvasContext.arc(ballX, ballY, 10, 0, Math.PI*2, true);
+            canvasContext.arc(x, y, radius, 0, Math.PI*2, true);
             canvasContext.fill();
         }
     </script>
