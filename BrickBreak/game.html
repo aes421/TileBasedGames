@@ -9,12 +9,14 @@
     <script>
         const PADDLE_WIDTH = 100;
         const PADDLE_THICKNESS = 10;
+        const PADDLE_HEIGHT = 25;
+        const BALL_RADIUS = 10;
 
         var canvas, canvasContext;
         var ballX, ballY;
         var ballSpeedX = 5;
         var ballSpeedY = 4;
-        var paddle1x;
+        var paddleX;
         var showingWinScreen = false;
 
         window.onload = function(){
@@ -27,32 +29,35 @@
             var framesPerSecond = 30;
             setInterval(updateAll, 1000/framesPerSecond);
 
-            canvas.addEventListener('mousemove',
-                function(event){
-                    var mousePosition = calculateMousePos(event);
-                })
+            canvas.addEventListener('mousemove', updateMousePostion);
         }
 
         function updateAll(){
             //background
             drawRect(0, 0, canvas.width, canvas.height, 'black');
             //ball
-            drawBall(ballX, ballY, 10, 'white');
+            drawBall(ballX, ballY, BALL_RADIUS, 'red');
+            //paddle
+            drawRect(paddleX, canvas.height-PADDLE_THICKNESS-PADDLE_HEIGHT,
+                PADDLE_WIDTH, PADDLE_THICKNESS, 'white')
             move();
         }
 
-        function calculateMousePos(event){
+        function updateMousePostion(evt){
             var rect = canvas.getBoundingClientRect();
             var root = document.documentElement;
-            var mouseX = event.clientX - rect.left - root.scrollLeft;
-            var mouseY = event.clientY - rect.top - root.scrollTop;
-            return {
-                    x: mouseX,
-                    y:mouseY
-                };
+
+            var mouseX = evt.clientX - rect.left - root.scrollLeft;
+
+            paddleX = mouseX-(PADDLE_WIDTH/2);
         }
 
         function move(){
+            var paddleLeft  = paddleX;
+            var paddleRight = paddleX + PADDLE_WIDTH;
+            var paddleTop = canvas.height - PADDLE_THICKNESS - PADDLE_HEIGHT;
+            var paddleBottom = canvas.height - PADDLE_HEIGHT;
+
             if (ballX < 0){
                 ballSpeedX = -ballSpeedX;
             }
@@ -62,9 +67,18 @@
             if (ballY < 0){
                 ballSpeedY = -ballSpeedY;
             }
+            if (ballY >= canvas.height){
+                ballReset();
+            }
+            if( ballX > paddleLeft &&
+                ballX < paddleRight &&
+                ballY >= paddleTop - BALL_RADIUS &&
+                ballY <= paddleBottom - BALL_RADIUS){
 
-            if (ballY > canvas.height){
                 ballSpeedY = -ballSpeedY;
+                var paddleCenter = paddleX + PADDLE_WIDTH/2;
+                var ballDisFromPaddleCenterX = ballX - paddleCenter;
+                ballSpeedX = ballDisFromPaddleCenterX * 0.35;
             }
 
             ballY = ballY + ballSpeedY;
@@ -81,6 +95,11 @@
             canvasContext.beginPath();
             canvasContext.arc(x, y, radius, 0, Math.PI*2, true);
             canvasContext.fill();
+        }
+
+        function ballReset(){
+            ballX = canvas.width/2;
+            ballY = canvas.height/2;
         }
     </script>
 </body>
