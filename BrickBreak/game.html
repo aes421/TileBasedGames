@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        const PADDLE_WIDTH = 100;
+        const PADDLE_THICKNESS = 10;
+
+        var canvas, canvasContext;
+        var ballX, ballY;
+        var ballSpeedX = 5;
+        var ballSpeedY = 4;
+        var paddle1x;
+        var showingWinScreen = false;
+
+        window.onload = function(){
+            canvas = document.getElementById('gameCanvas');
+            canvasContext = canvas.getContext('2d');
+
+            ballX = canvas.width/2;
+            ballY = canvas.height/2;
+
+            var framesPerSecond = 30;
+            setInterval(updateAll, 1000/framesPerSecond);
+
+            canvas.addEventListener('mousemove',
+                function(event){
+                    var mousePosition = calculateMousePos(event);
+                })
+        }
+
+        function updateAll(){
+            //background
+            drawRect(0, 0, canvas.width, canvas.height, 'black');
+            //ball
+            drawBall(ballX, ballY, 10, 'white');
+            move();
+        }
+
+        function calculateMousePos(event){
+            var rect = canvas.getBoundingClientRect();
+            var root = document.documentElement;
+            var mouseX = event.clientX - rect.left - root.scrollLeft;
+            var mouseY = event.clientY - rect.top - root.scrollTop;
+            return {
+                    x: mouseX,
+                    y:mouseY
+                };
+        }
+
+        function move(){
+            if (ballX < 0){
+                ballSpeedX = -ballSpeedX;
+            }
+            if (ballX > canvas.width){
+                ballSpeedX = -ballSpeedX;
+            }
+            if (ballY < 0){
+                ballSpeedY = -ballSpeedY;
+            }
+
+            if (ballY > canvas.height){
+                ballSpeedY = -ballSpeedY;
+            }
+
+            ballY = ballY + ballSpeedY;
+            ballX = ballX + ballSpeedX;
+        }
+
+        function drawRect(x, y, width, height, color){
+            canvasContext.fillStyle = color;
+            canvasContext.fillRect(x, y, width, height);
+        }
+
+        function drawBall(x, y, radius, color){
+            canvasContext.fillStyle = color;
+            canvasContext.beginPath();
+            canvasContext.arc(x, y, radius, 0, Math.PI*2, true);
+            canvasContext.fill();
+        }
+    </script>
+</body>
+</html>
